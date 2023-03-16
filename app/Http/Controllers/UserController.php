@@ -39,7 +39,7 @@ class UserController extends Controller
     public function updateNameEmail(UpdateNameEmailUserRequest $request, User $user)
     {
         $userauth = Auth::user();
-        if($userauth->can('edit own profile') && !$userauth->can('edit all profiles') && $userauth->id != $user->id){
+        if($userauth->id != $user->id){
             return response()->json([
                 'status' => true,
                 'message' => 'You do not have permission to update this user'
@@ -47,10 +47,6 @@ class UserController extends Controller
         }
 
         $user->update($request->validated());
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
 
         return response()->json([
             'status' => true,
@@ -63,19 +59,16 @@ class UserController extends Controller
 
         $userauth = Auth::user();
 
-        if($userauth->can('edit own profile') && !$userauth->can('edit all profiles') && $userauth->id != $user->id){
+        if($userauth->id != $user->id){
             return response()->json([
-                'status' => true,
+                'status' => false,
                 'message' => 'You do not have permission to update this user'
             ], 200);
         }
+        
         $user->update([
-            'password' => Hash::make($request->validated())
+            'password' => Hash::make($request->password)
         ]);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
 
         return response()->json([
             'status' => true,
@@ -93,7 +86,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $userauth = Auth::user();
-        if($userauth->can('delete own profile') && !$userauth->can('delete all profiles') && $userauth->id != $user->id){
+        if($userauth->id != $user->id){
             return response()->json([
                 'status' => true,
                 'message' => 'You do not have permission to delete this user'

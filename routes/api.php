@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,16 +43,26 @@ Route::controller(AuthController::class)->group(function () {
         });
         Route::group(['controller' => UserController::class, 'prefix' => 'users'], function () {
             Route::get('', 'index')->middleware(['permission:view own profile|view all profiles']);
-            Route::put('updateNameEmail/{user}', 'updateNameEmail')->middleware(['permission:edit own profile|edit all profiles']);
-            Route::put('updatePassword/{user}', 'updatePassword')->middleware(['permission:edit own profile|edit all profiles']);
-            Route::delete('/{user}', 'destroy')->middleware(['permission:delete own profile|delete all profiles']);
+            Route::put('updateNameEmail/{user}', 'updateNameEmail');
+            Route::put('updatePassword/{user}', 'updatePassword');
+            Route::delete('/{user}', 'destroy');
+        });
+
+        Route::group(['controller' => RoleController::class], function() {
+            Route::post('assign-role/{id}', 'assignRole')->middleware('permission:manage roles');
+            Route::post('remove-role/{id}', 'removeRole')->middleware('permission:manage roles');
+        });
+
+        Route::group(['controller' => PermissionController::class], function() {
+            Route::post('assign-permission/{role}', 'assignPermissionToRole')->middleware('permission:manage permissions');
+            Route::delete('remove-permission/{role}', 'removePermissionFromRole')->middleware('permission:manage permissions');
         });
     });
 });
 
 
-// Route::controller(ProductController::class)->group(function () {
-//     Route::get('/products','index');
-//     Route::get('/products/{product}','show');
-//     Route::get('/products/filter/category/{filter}','filterCategory');
-// });
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/products','index');
+    Route::get('/products/{product}','show');
+    Route::get('/products/filter/category/{filter}','filterCategory');
+});

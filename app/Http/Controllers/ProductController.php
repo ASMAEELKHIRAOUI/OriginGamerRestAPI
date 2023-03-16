@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api');
-    // }
 
     /**
      * Display a listing of the resource.
@@ -30,6 +27,14 @@ class ProductController extends Controller
         ]);
     }
 
+    public function filterCategory($filter){
+
+        $product=Product::join("categories","categories.id","=","products.category_id")
+                          ->where("categories.name","=",$filter)->get();
+        return ($product);
+  
+      }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -38,11 +43,11 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        $product = Product::create($request->all());
+        $product = Product::create($request->all() + ['user_id' => Auth()->user()->id]);
 
         return response()->json([
             'status' => true,
-            'message' => "Product Created successfully!",
+            'message' => "Product created successfully!",
             'product' => $product
         ], 201);
     }
@@ -69,8 +74,15 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(StoreProductRequest $request, Product $product)
     {
+        $user = Auth::user();
+        if(!$user->can('edit All products')  && $user->id != $product->user_id){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have the permission to edit this product!",
+            ], 200);
+        }
         $product->update($request->all());
 
         if (!$product) {
@@ -92,17 +104,24 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $user = Auth::user();
+        if(!$user->can('edit All products')  && $user->id != $product->user_id){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have the permission to delete this product!",
+            ], 200);
+        }
         $product->delete();
 
         if (!$product) {
             return response()->json([
-                'message' => 'Product not found'
+                'message' => 'product not found'
             ], 404);
         }
 
         return response()->json([
             'status' => true,
-            'message' => 'Product deleted successfully'
+            'message' => 'product deleted successfully'
         ], 200);
     }
 }

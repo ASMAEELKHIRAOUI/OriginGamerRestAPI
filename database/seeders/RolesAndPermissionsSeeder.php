@@ -20,10 +20,6 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
 
-        $editOwnProfile = 'edit own profile';
-        $editAllProfiles = 'edit all profiles';
-        $deleteOwnProfile = 'delete own profile';
-        $deleteAllProfiles = 'delete all profiles';
         $viewOwnProfile = 'view own profile';
         $viewAllprofiles = 'view all profiles';
 
@@ -38,12 +34,14 @@ class RolesAndPermissionsSeeder extends Seeder
         $deleteCategory = 'delete category';
         $viewCategory = 'view category';
 
-        Permission::create(['name' => $editOwnProfile]);
-        Permission::create(['name' => $editAllProfiles]);
-        Permission::create(['name' => $deleteOwnProfile]);
-        Permission::create(['name' => $deleteAllProfiles]);
+        $manageRoles = 'manage roles';
+        $managePermissions = 'manage permissions';
+
         Permission::create(['name' => $viewOwnProfile]);
         Permission::create(['name' => $viewAllprofiles]);
+
+        Permission::create(['name' => $manageRoles]);
+        Permission::create(['name' => $managePermissions]);
 
         Permission::create(['name' => $addProduct]);
         Permission::create(['name' => $editAllProducts]);
@@ -67,14 +65,10 @@ class RolesAndPermissionsSeeder extends Seeder
             $addProduct,
             $editOwnProduct,
             $deleteOwnProduct,
-            $editOwnProfile,
-            $deleteOwnProfile,
             $viewOwnProfile,
         ]);
 
         Role::create(['name' => $user])->givePermissionTo([
-            $editOwnProfile,
-            $deleteOwnProfile,
             $viewOwnProfile,
         ]);
     }

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->text('content');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->unsignedBigInteger('price');
