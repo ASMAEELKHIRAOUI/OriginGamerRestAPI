@@ -14,7 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if($user->can('view own profile') && !$user->can('view all profiles')){
+        if ($user->can('view own profile') && !$user->can('view all profiles')) {
             $users = User::find($user->id);
             return response()->json([
                 'status' => 'success',
@@ -39,7 +39,7 @@ class UserController extends Controller
     public function updateNameEmail(UpdateNameEmailUserRequest $request, User $user)
     {
         $userauth = Auth::user();
-        if($userauth->id != $user->id){
+        if ($userauth->id != $user->id) {
             return response()->json([
                 'status' => true,
                 'message' => 'You do not have permission to update this user'
@@ -54,18 +54,19 @@ class UserController extends Controller
             'user' => $user
         ], 200);
     }
-    public function updatePassword(UpdatePasswordUserRequest $request, User $user)
+    public function updatePassword(UpdatePasswordUserRequest $request)
     {
 
         $userauth = Auth::user();
+        $user=$userauth->find($userauth->id);
 
-        if($userauth->id != $user->id){
+        if ($userauth->id != $user->id) {
             return response()->json([
                 'status' => false,
                 'message' => 'You do not have permission to update this user'
             ], 200);
         }
-        
+
         $user->update([
             'password' => Hash::make($request->password)
         ]);
@@ -83,10 +84,12 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy()
     {
         $userauth = Auth::user();
-        if($userauth->id != $user->id){
+        $user=$userauth->find($userauth->id);
+
+        if ($userauth->id != $user->id) {
             return response()->json([
                 'status' => true,
                 'message' => 'You do not have permission to delete this user'
@@ -98,5 +101,4 @@ class UserController extends Controller
             'message' => 'User deleted successfully'
         ], 200);
     }
-
 }
